@@ -198,3 +198,7 @@ later), App Store submission, and any server component.
 Inspired by [bookmarker for pinboard](https://github.com/kristofa/bookmarker_for_pinboard)
 by Kristof Adriaenssens (Apache 2.0). Pinmark is an independent rewrite as a Safari
 Web Extension; no original source is reused.
+
+## License
+
+[MIT](LICENSE) © Matthew Culnane.
