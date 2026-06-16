@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Save to Pinboard</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <!-- Main bookmark form -->
+    <main id="form-view" class="view" hidden>
+      <header class="bar">
+        <span id="status-badge" class="badge" hidden></span>
+        <button id="settings-btn" class="icon-btn" type="button" title="Settings" aria-label="Settings">⚙</button>
+      </header>
+
+      <form id="bookmark-form" autocomplete="off">
+        <label class="field">
+          <span class="label">Title</span>
+          <input id="title" name="title" type="text" />
+        </label>
+
+        <label class="field">
+          <span class="label">URL</span>
+          <input id="url" name="url" type="url" inputmode="url" />
+        </label>
+
+        <label class="field">
+          <span class="label">Description</span>
+          <textarea id="description" name="description" rows="2"></textarea>
+        </label>
+
+        <div class="field">
+          <span class="label">Tags</span>
+          <div class="tags-wrap">
+            <input
+              id="tags"
+              name="tags"
+              type="text"
+              placeholder="space-separated"
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="false"
+              role="combobox"
+              aria-expanded="false"
+              aria-autocomplete="list"
+              aria-controls="suggestions"
+            />
+            <ul id="suggestions" class="suggestions" role="listbox" hidden></ul>
+          </div>
+        </div>
+
+        <div class="toggles">
+          <label class="toggle">
+            <input id="read-later" type="checkbox" />
+            <span>Read later</span>
+          </label>
+          <label class="toggle">
+            <input id="private" type="checkbox" />
+            <span>Private</span>
+          </label>
+        </div>
+
+        <p id="form-error" class="error" role="alert" hidden></p>
+
+        <button id="save-btn" class="primary" type="submit">Save to Pinboard</button>
+      </form>
+    </main>
+
+    <!-- First-run / settings: token entry -->
+    <section id="settings-view" class="view" hidden>
+      <header class="bar">
+        <strong>Settings</strong>
+        <button id="settings-back" class="icon-btn" type="button" title="Back" aria-label="Back">✕</button>
+      </header>
+
+      <form id="settings-form">
+        <label class="field">
+          <span class="label">Pinboard API token</span>
+          <input
+            id="token"
+            type="password"
+            placeholder="username:XXXXXXXXXXXX"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <small class="hint">
+            Find it at
+            <a href="https://pinboard.in/settings/password" target="_blank" rel="noreferrer"
+              >pinboard.in/settings/password</a
+            >. Stored only in this extension.
+          </small>
+        </label>
+
+        <p id="settings-error" class="error" role="alert" hidden></p>
+        <p id="settings-status" class="status" hidden></p>
+
+        <div class="settings-actions">
+          <button id="refresh-tags-btn" class="secondary" type="button">Refresh tag cache</button>
+          <button id="settings-save" class="primary" type="submit">Save token</button>
+        </div>
+
+        <p id="cache-info" class="cache-info"></p>
+      </form>
+    </section>
+
+    <!-- Lightweight initial state while we load tab + storage -->
+    <div id="loading-view" class="view loading">Loading…</div>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

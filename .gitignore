@@ -1,0 +1,13 @@
+# macOS
+.DS_Store
+
+# Xcode build artifacts / user state (the project itself IS committed)
+DerivedData/
+build/
+*.xcuserstate
+**/xcuserdata/
+**/*.xcworkspace/xcuserdata/
+
+# Local secrets — the token is entered in the extension UI, never committed
+.env
+*.token
