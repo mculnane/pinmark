@@ -94,9 +94,18 @@ then `tags/get`) never trips the limiter.
      is signed only with a free Apple ID — see below).
    - Pin the toolbar button: View → Customize Toolbar, or right-click the toolbar.
 
-5. **Grant host access.** On first use Safari will ask to allow Pinmark on
-   `api.pinboard.in` (and the current page, for reading your text selection).
-   Allow it.
+5. **Grant host access — required.** The popover talks to `api.pinboard.in`, but
+   Safari blocks an extension's network requests until you *manually* allow the
+   host, and it won't prompt for an API host you never actually visit. Because
+   `api.pinboard.in` isn't a page you browse, grant the catch-all:
+   - Click the Pinmark toolbar button → the website-access menu → **Always Allow
+     on Every Website**, **or**
+   - Safari → Settings → **Extensions** → **Pinmark** → set website access to
+     **Allow on Every Website**.
+
+   Without this, saving a token fails with *"Couldn't reach Pinboard"* even though
+   your token and connection are fine. This grant also covers reading the page's
+   text selection into the description field.
 
 ---
 
@@ -152,6 +161,17 @@ token.
   and stores it **only in the extension's local storage** (`browser.storage.local`).
 - The token is **never** read from any file on disk at runtime — only from
   extension storage, where you entered it.
+
+**Troubleshooting the error messages:**
+
+- *"Couldn't reach Pinboard…"* — almost always missing host access. Grant Pinmark
+  **Allow on Every Website** (see *Build & install* step 5) and retry. This is a
+  Safari permission issue on your side, not Pinboard's.
+- *"Pinboard's servers are having problems (HTTP 5xx)…"* — genuinely Pinboard's
+  end; wait and retry. (Seeing this *instead* of the message above actually means
+  host access is now working.)
+- *"Pinboard rejected that token…"* — re-copy the full `username:TOKEN` from
+  [pinboard.in/settings/password](https://pinboard.in/settings/password).
 
 ---
 
