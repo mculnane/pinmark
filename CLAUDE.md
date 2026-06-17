@@ -30,8 +30,15 @@ Pinboard with frequency-ranked tag autocomplete. Public repo:
    `xcode/` is missing or the manifest structure changed).
 2. Set the signing Team on both targets (`Pinmark`, `Pinmark Extension`) with
    automatic signing.
-3. ⌘R, then enable in Safari → Settings → Extensions (and Develop → Allow
-   unsigned extensions when signed with a free Apple ID).
+3. ⌘R, then enable in Safari → Settings → Extensions.
+
+**Sign with a real team, not Team: None.** With a personal Apple ID team selected
+(step 2) the extension is signed with a development cert and **persists across
+Safari restarts** (until the free cert expires ~7 days later). An *unsigned* build
+(Team: None / ad-hoc) only loads while Safari → Develop → **Allow Unsigned
+Extensions** is on — and that toggle **resets on every Safari quit**, so the
+extension silently disappears from Settings → Extensions whenever Safari restarts.
+This bit us hard during debugging; always select the team.
 
 **Safari loads the extension from the built `.appex`, not from `src/` directly.**
 Rebuild (⌘R) for any JS/HTML/CSS change to take effect.
@@ -82,6 +89,31 @@ jsc, and the syntax is fine).
   `git update-index --no-skip-worktree xcode/Pinmark/Pinmark.xcodeproj/project.pbxproj`.
 - **A free Apple ID signing certificate expires every 7 days** — rebuild to
   refresh.
+
+## Debugging in Safari (hard-won)
+
+- **The popover has no "Inspect Element"** — right-clicking it only offers
+  *Reload*, so you can't open Web Inspector on the popup the usual way. To debug
+  popup logic, temporarily surface the underlying error in the on-screen message
+  (e.g. append `err.cause?.message` in `describeError`), rebuild, and read it. For
+  the background worker's console, use Safari → Develop → **Web Extension
+  Background Content → Pinmark**.
+- **The background service worker is sticky.** ⌘R reloads the popup/HTML/JS, but
+  Safari often keeps the *old* worker running, so changes to `background.js` may
+  not take effect. Toggle Pinmark off/on in Settings → Extensions to force a fresh
+  worker. (Quitting Safari also works but disables unsigned extensions — see Build
+  & run — so only do that when signed with a team.)
+- **"Couldn't reach Pinboard" / a `network` error with the host already granted**
+  is the popover-fetch CORS issue, not a permission problem. The fix is background
+  routing (see gotchas); more permission fiddling won't help.
+- **Granting `api.pinboard.in` (Settings → Websites) is necessary but not
+  sufficient** — the request still has to originate from the background worker.
+- **Check Pinboard's API independently of the extension** before assuming a local
+  bug:
+  `curl -s -o /dev/null -w "%{http_code}\n" "https://api.pinboard.in/v1/tags/get?auth_token=dummy:0000&format=json"`
+  — `401` = healthy (a bad token is rejected), `5xx` = Pinboard outage, timeout =
+  unreachable. Pinboard ran an extended `500` outage during initial testing, which
+  masked the real (CORS) bug for a while.
 
 ## Icons
 
