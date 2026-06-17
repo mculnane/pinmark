@@ -31,6 +31,36 @@ browser.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === ALARM) refreshTags();
 });
 
+// Network proxy for the popup.
+//
+// On Safari, the privileged context for a CORS-exempt fetch to a host in
+// host_permissions is the background worker — a fetch issued from the popover
+// page is still subject to CORS and fails (Pinboard sends no CORS headers). So
+// the popup hands us the fully-built request URL and we perform the fetch here,
+// returning a serialised response (or a flagged error) for it to interpret.
+browser.runtime.onMessage.addListener((message) => {
+  if (message?.type === "pinboard-fetch") {
+    return handlePinboardFetch(message.url);
+  }
+  return undefined;
+});
+
+async function handlePinboardFetch(url) {
+  try {
+    const res = await fetch(url);
+    return {
+      ok: res.ok,
+      status: res.status,
+      statusText: res.statusText,
+      body: await res.text(),
+    };
+  } catch (err) {
+    // fetch rejected (offline, blocked, DNS). Flag it so the popup can map it
+    // to a "network" error rather than treating it as an HTTP response.
+    return { networkError: String(err?.message ?? err) };
+  }
+}
+
 async function refreshTags() {
   const stored = await browser.storage.local.get([KEYS.token, KEYS.tagCache]);
   const token = stored[KEYS.token];

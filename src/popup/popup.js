@@ -12,6 +12,7 @@ import {
   setDefaults,
 } from "../lib/storage.js";
 import { createPinboardClient, PinboardError } from "../lib/pinboard-api.js";
+import { backgroundFetch } from "../lib/background-fetch.js";
 import {
   tokenAtCaret,
   existingTags,
@@ -56,7 +57,7 @@ async function init() {
     return;
   }
 
-  state.client = createPinboardClient(state.token);
+  state.client = createPinboardClient(state.token, { fetchImpl: backgroundFetch });
   showView("form");
   await Promise.all([prefillFromTab(), loadTags()]);
 }
@@ -406,7 +407,7 @@ async function onSaveToken(e) {
 
   try {
     // Validate by fetching tags; doubles as the initial cache warm-up.
-    const client = createPinboardClient(token);
+    const client = createPinboardClient(token, { fetchImpl: backgroundFetch });
     const tags = await client.getTags();
     await setToken(token);
     await setTagCache(tags);

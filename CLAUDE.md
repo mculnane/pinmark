@@ -64,6 +64,13 @@ jsc, and the syntax is fine).
   Safari's support for module service workers is unreliable, so
   `background/background.js` duplicates the few storage keys it needs. Keep them
   in sync with `lib/storage.js`.
+- **Network requests go through the background worker, not the popover.** On
+  Safari a cross-origin `fetch` from the popover is CORS-blocked even with the
+  host granted (Pinboard sends no CORS headers); only the background worker is
+  exempt. So the popup's API client is given `lib/background-fetch.js` as its
+  `fetchImpl`, which messages `background.js` (`type: "pinboard-fetch"`) to run
+  the real `fetch` and returns a reconstructed Response. Keep the actual `fetch`
+  in the background — don't "simplify" it back into the popup.
 - **Rate limit:** Pinboard asks for ≥3s between calls; the client serialises and
   spaces requests. Don't remove the limiter.
 - **Token** lives only in `browser.storage.local`, entered via the popup's
